@@ -219,7 +219,7 @@
     var collected = this.collect();
 
     if (collected.problems.length > 0) {
-      this.say('Check these rows — ' + collected.problems.join('; '), true);
+      this.say('Check these rows: ' + collected.problems.join('; '), true);
       return;
     }
 

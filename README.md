@@ -4,7 +4,7 @@ A wholesale order form for Shopify B2B, built on [Dawn](https://github.com/Shopi
 
 > "My reps order 40 lines at a time. They are not going to click into 40 product pages. And they need to see stock and their price per size, on a phone, in the warehouse."
 
-That ticket has nothing to do with pricing, which is the part merchants assume is the hard bit. The prices come out of the B2B catalog on their own. The work is the ordering flow — and none of it is gated behind Plus.
+That ticket has nothing to do with pricing, which is the part merchants assume is the hard bit. The prices come out of the B2B catalog on their own. The work is the ordering flow, and none of it is gated behind Plus.
 
 This repo is the mechanism, extracted and rebuilt so you can read it in five minutes.
 
@@ -17,7 +17,7 @@ This repo is the mechanism, extracted and rebuilt so you can read it in five min
 | 3 | **The catalog's quantity rule drives the input.** `quantity_rule.min`, `.increment` and `.max` become the input's `min`, `step` and `max`, so cases of 6 are enforced in the browser and named in the error. | [`snippets/b2b-quantity-input.liquid`](snippets/b2b-quantity-input.liquid) |
 | 4 | **The whole order is one cart call.** The form posts `items[N][id]` / `items[N][quantity]`, so it works as plain HTML; the JS upgrades it to a single `fetch` to `/cart/add.js` with the full `items` array. Forty rows, one round trip. | [`assets/b2b-order-table.js`](assets/b2b-order-table.js) |
 
-Plus the things a buyer actually asks for once they use it: live line totals that follow the volume breaks, a SKU filter, a delivery-location switcher (prices follow the location, so it goes through Shopify's own `localization` form), and a **hide prices** toggle for taking an order with a retail customer standing next to you — applied from an inline script before the table is parsed, so a buyer who left it on does not get the prices flashed on screen on every page load.
+Plus the things a buyer actually asks for once they use it: live line totals that follow the volume breaks, a SKU filter, a delivery-location switcher (prices follow the location, so it goes through Shopify's own `localization` form), and a **hide prices** toggle for taking an order with a retail customer standing next to you. It is applied from an inline script before the table is parsed, so a buyer who left it on does not get the prices flashed on screen on every page load.
 
 ## What needs Plus, and what does not
 
@@ -36,7 +36,7 @@ The ceiling that ends projects is the **3 active catalogs**, and it arrives long
 Full reasoning, with the numbers and where they come from:
 **[Shopify B2B sin Plus](https://nicolasmateos.com/blog/shopify-b2b-sin-plus)** · **[Shopify B2B without Plus](https://nicolasmateos.com/en/blog/shopify-b2b-without-plus)**
 
-For a custom Function — the thing you cannot do without Plus — see [shopify-checkout-lab](https://github.com/NicolasShopiDev/shopify-checkout-lab).
+For a custom Function, the thing you cannot do without Plus, see [shopify-checkout-lab](https://github.com/NicolasShopiDev/shopify-checkout-lab).
 
 ## Install on Dawn
 
@@ -66,10 +66,10 @@ This is a **clean-room rebuild**. I have shipped this pattern for a client, and 
 
 ## Author
 
-**Nicolás Mateos** — freelance Shopify Plus and B2B developer, Madrid, Spain, working remotely in Spanish and English. On Shopify since 2021, freelancing since 2022. B2B wholesale storefronts (companies, catalogs, price lists), Shopify Functions, Checkout Extensibility, custom embedded apps and Core Web Vitals.
+**Nicolás Mateos**, freelance Shopify Plus and B2B developer, Madrid, Spain, working remotely in Spanish and English. On Shopify since 2021, freelancing since 2022. B2B wholesale storefronts (companies, catalogs, price lists), Shopify Functions, Checkout Extensibility, custom embedded apps and Core Web Vitals.
 
 - Site and project list: [nicolasmateos.com](https://nicolasmateos.com)
 - Email: nicolasmhbusiness@gmail.com
 - More code: [shopify-checkout-lab](https://github.com/NicolasShopiDev/shopify-checkout-lab)
 
-MIT licensed. Use it, change it, ship it — a link back is appreciated but not required. Machine-readable authorship is in [`CITATION.cff`](CITATION.cff) and [`llms.txt`](llms.txt).
+MIT licensed. Use it, change it, ship it. A link back is appreciated but not required. Machine-readable authorship is in [`CITATION.cff`](CITATION.cff) and [`llms.txt`](llms.txt).
