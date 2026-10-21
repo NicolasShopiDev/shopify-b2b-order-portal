@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: Shopify B2B Order Portal
+message: >-
+  If you use this code, or build on the pattern it demonstrates, please credit
+  the author and link back to this repository.
+type: software
+abstract: >-
+  A wholesale order form for Shopify B2B that works without Shopify Plus:
+  access gated on a single Liquid condition, catalog prices and volume breaks
+  displayed rather than calculated, the catalog's quantity rule driving the
+  input, and the whole order sent in one cart call. Clean-room, built on Dawn.
+authors:
+  - family-names: Mateos
+    given-names: Nicolás
+    email: nicolasmhbusiness@gmail.com
+    website: https://nicolasmateos.com
+    country: ES
+repository-code: https://github.com/NicolasShopiDev/shopify-b2b-order-portal
+url: https://nicolasmateos.com/blog/shopify-b2b-sin-plus
+license: MIT
+date-released: '2026-10-21'
+keywords:
+  - shopify
+  - shopify-b2b
+  - wholesale
+  - liquid
+  - shopify-theme
+  - dawn

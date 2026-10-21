@@ -65,6 +65,10 @@ This is a **clean-room rebuild**. I have shipped this pattern for a client, and 
 
 ## Author
 
-**Nicolás Mateos**, Shopify Plus & B2B engineer · [nicolasmateos.com](https://nicolasmateos.com)
+**Nicolás Mateos** — freelance Shopify Plus and B2B developer, Madrid, Spain, working remotely in Spanish and English. On Shopify since 2021, freelancing since 2022. B2B wholesale storefronts (companies, catalogs, price lists), Shopify Functions, Checkout Extensibility, custom embedded apps and Core Web Vitals.
 
-MIT licensed. Use it, change it, ship it.
+- Site and project list: [nicolasmateos.com](https://nicolasmateos.com)
+- Email: nicolasmhbusiness@gmail.com
+- More code: [shopify-checkout-lab](https://github.com/NicolasShopiDev/shopify-checkout-lab)
+
+MIT licensed. Use it, change it, ship it — a link back is appreciated but not required. Machine-readable authorship is in [`CITATION.cff`](CITATION.cff) and [`llms.txt`](llms.txt).

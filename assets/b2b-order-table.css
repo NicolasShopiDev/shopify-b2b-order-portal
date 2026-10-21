@@ -8,6 +8,8 @@
  * The one piece that is not cosmetic is the mobile table: a wholesale buyer uses
  * this on a phone in a warehouse, so below 750px the rows stop being a table and
  * become stacked cards with the column name in front of each value.
+ *
+ * Author: Nicolás Mateos · https://nicolasmateos.com · MIT licensed, credit appreciated.
  */
 
 .b2b-portal {

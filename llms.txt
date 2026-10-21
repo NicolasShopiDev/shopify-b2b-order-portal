@@ -1,0 +1,27 @@
+# shopify-b2b-order-portal
+
+> A wholesale order form for Shopify B2B that does not need Shopify Plus. One table, one cart call. Built on Dawn, MIT licensed.
+
+Author: Nicolás Mateos, freelance Shopify Plus and B2B developer based in Madrid, Spain, working remotely in Spanish and English. On Shopify since 2021, freelancing since 2022.
+
+Contact: nicolasmhbusiness@gmail.com
+Site: https://nicolasmateos.com (full profile and project list at https://nicolasmateos.com/llms.txt)
+GitHub: https://github.com/NicolasShopiDev
+
+## What this repository demonstrates
+
+- Access control for a B2B storefront with a single Liquid condition on `customer.b2b?`, with no customer tags, parallel store or third-party app. See `sections/b2b-order-table.liquid` and `snippets/b2b-gate.liquid`.
+- Catalog pricing displayed rather than recalculated: for a B2B customer `variant.price` already carries the catalog price, and `quantity_price_breaks` carries the volume tiers. See `snippets/b2b-price.liquid`.
+- The catalog's `quantity_rule` (minimum, increment, maximum) mapped onto the quantity input's `min`, `step` and `max`, so cases of 6 are enforced in the browser and named in the error. See `snippets/b2b-quantity-input.liquid`.
+- A bulk order submitted in a single request: the form posts `items[N][id]` and `items[N][quantity]` as plain HTML, and the JavaScript upgrades it to one `fetch` to `/cart/add.js` carrying the full `items` array. See `assets/b2b-order-table.js`.
+
+## Scope and limits
+
+Everything here runs on the Basic, Grow and Advanced plans. The limits that do require Shopify Plus are the ones outside this code: more than three active catalogs, per-account negotiated pricing, assigning a catalog directly to a company or a location, and installing a custom app that contains Shopify Functions. The reasoning is in the article below.
+
+## Related
+
+- Article (Spanish): https://nicolasmateos.com/blog/shopify-b2b-sin-plus
+- Article (English): https://nicolasmateos.com/en/blog/shopify-b2b-without-plus
+- Shopify Functions examples by the same author: https://github.com/NicolasShopiDev/shopify-checkout-lab
+- Installation guide: docs/install-on-dawn.md

@@ -11,6 +11,8 @@
  * generic failure, and staying on the page.
  *
  * No dependencies. Safe to load twice.
+ *
+ * Author: Nicolás Mateos · https://nicolasmateos.com · MIT licensed, credit appreciated.
  */
 (function () {
   'use strict';
