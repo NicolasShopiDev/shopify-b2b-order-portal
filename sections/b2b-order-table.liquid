@@ -1,0 +1,323 @@
+{%- comment -%}
+  b2b-order-table.liquid — the wholesale order form.
+
+  One table, one cart call. A buyer fills in quantities across a whole collection
+  and sends the order in a single request instead of adding products one by one.
+
+  Four things worth reading the code for:
+
+  1. Access is one condition. `customer.b2b?` decides whether the portal renders.
+     No customer tags, no parallel store, no app.
+  2. Prices are not calculated here. For a B2B customer `variant.price` already
+     carries the catalog price, so this template only formats it.
+  3. The catalog's quantity rule drives the input. See `b2b-quantity-input`.
+  4. The form posts to `routes.cart_add_url` with `items[N][id]` and
+     `items[N][quantity]` fields, which is a real HTML form that works without
+     JavaScript. The JS upgrades it to a single `fetch` so the buyer stays on
+     the page and sees per-row errors.
+
+  Nothing in this section requires Shopify Plus.
+{%- endcomment -%}
+
+{{ 'b2b-order-table.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'b2b-order-table.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign source = section.settings.collection
+  assign per_page = section.settings.products_per_page | default: 20
+-%}
+
+<style>
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+</style>
+
+<div class="b2b-portal page-width section-{{ section.id }}-padding">
+  {%- unless customer.b2b? -%}
+    {% render 'b2b-gate' %}
+  {%- else -%}
+    <header class="b2b-portal__header">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="b2b-portal__heading">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+
+      <div class="b2b-portal__account">
+        {%- if customer.current_company.name != blank -%}
+          <p class="b2b-portal__company">{{ customer.current_company.name }}</p>
+        {%- endif -%}
+
+        {%- assign locations = customer.company_available_locations -%}
+        {%- if locations.size > 1 -%}
+          {%- comment -%}
+            Prices, taxes and shipping follow the delivery location, so the buyer has
+            to be able to see and change it. Shopify's `localization` form takes
+            `company_location_id` and reloads the page with the right catalog.
+          {%- endcomment -%}
+          {%- form 'localization', id: 'b2b-location-form', class: 'b2b-portal__location-form' -%}
+            <label class="b2b-portal__location-label" for="b2b-location">Deliver to</label>
+            <select id="b2b-location" name="company_location_id" data-b2b-location>
+              {%- for location in locations -%}
+                <option
+                  value="{{ location.id }}"
+                  {% if location.id == customer.current_location.id %}selected{% endif %}
+                >
+                  {{ location.name }}
+                </option>
+              {%- endfor -%}
+            </select>
+            <noscript><button type="submit">Change</button></noscript>
+          {%- endform -%}
+        {%- elsif customer.current_location.name != blank -%}
+          <p class="b2b-portal__location">Deliver to {{ customer.current_location.name }}</p>
+        {%- endif -%}
+      </div>
+
+      <div class="b2b-portal__tools">
+        {%- if section.settings.show_sku_search -%}
+          <div class="b2b-portal__search">
+            <label class="visually-hidden" for="b2b-search">Filter by SKU or name</label>
+            <input
+              type="search"
+              id="b2b-search"
+              placeholder="Filter by SKU or name"
+              autocomplete="off"
+              data-b2b-search
+            >
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.allow_price_hide -%}
+          {%- comment -%}
+            Buyers place orders on the warehouse floor with a retail customer next to
+            them. Hiding the price column is a real request, not a nice-to-have.
+          {%- endcomment -%}
+          <button type="button" class="b2b-portal__hide-prices" data-b2b-toggle-prices aria-pressed="false">
+            Hide prices
+          </button>
+        {%- endif -%}
+      </div>
+    </header>
+
+    {%- if source == blank -%}
+      <p class="b2b-portal__empty">
+        Pick a collection for this section in the theme editor.
+      </p>
+    {%- else -%}
+      <form
+        action="{{ routes.cart_add_url }}"
+        method="post"
+        enctype="multipart/form-data"
+        class="b2b-order-table"
+        data-b2b-order-form
+        data-b2b-currency="{{ cart.currency.iso_code }}"
+      >
+        <input type="hidden" name="return_to" value="{{ routes.cart_url }}">
+
+        {%- assign row_index = 0 -%}
+        {%- paginate source.products by per_page -%}
+          {%- for product in source.products -%}
+            <section class="b2b-group" data-b2b-group>
+              <h3 class="b2b-group__title">
+                <a href="{{ product.url }}">{{ product.title | escape }}</a>
+              </h3>
+
+              <table class="b2b-table">
+                <thead>
+                  <tr>
+                    {%- if section.settings.show_sku -%}<th scope="col">SKU</th>{%- endif -%}
+                    <th scope="col">Variant</th>
+                    {%- if section.settings.show_stock -%}<th scope="col">Stock</th>{%- endif -%}
+                    <th scope="col" class="b2b-table__price-col">Unit price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col" class="b2b-table__price-col">Line total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {%- for variant in product.variants -%}
+                    {%- liquid
+                      assign label = product.title | append: ' — ' | append: variant.title
+                      assign haystack = label | append: ' ' | append: variant.sku | downcase
+                    -%}
+                    <tr class="b2b-row" data-b2b-row data-b2b-haystack="{{ haystack | escape }}">
+                      {%- if section.settings.show_sku -%}
+                        <td class="b2b-row__sku" data-label="SKU">{{ variant.sku | default: '—' }}</td>
+                      {%- endif -%}
+
+                      <td class="b2b-row__variant" data-label="Variant">{{ variant.title }}</td>
+
+                      {%- if section.settings.show_stock -%}
+                        <td class="b2b-row__stock" data-label="Stock">
+                          {%- liquid
+                            if variant.inventory_management == blank
+                              echo 'Not tracked'
+                            elsif variant.inventory_quantity > 0
+                              echo variant.inventory_quantity
+                            elsif variant.available
+                              echo 'On backorder'
+                            else
+                              echo 'Out of stock'
+                            endif
+                          -%}
+                        </td>
+                      {%- endif -%}
+
+                      <td class="b2b-row__price b2b-table__price-col" data-label="Unit price">
+                        {% render 'b2b-price',
+                          variant: variant,
+                          show_breaks: section.settings.show_volume_breaks
+                        %}
+                      </td>
+
+                      <td class="b2b-row__qty" data-label="Quantity">
+                        {% render 'b2b-quantity-input',
+                          variant: variant,
+                          index: row_index,
+                          label: label
+                        %}
+                      </td>
+
+                      <td class="b2b-row__total b2b-table__price-col" data-label="Line total">
+                        <span data-b2b-line-total>{{ 0 | money }}</span>
+                      </td>
+                    </tr>
+                    {%- assign row_index = row_index | plus: 1 -%}
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            </section>
+          {%- endfor -%}
+
+          {%- if paginate.pages > 1 -%}
+            <nav class="b2b-order-table__pagination" aria-label="Pagination">
+              {{ paginate | default_pagination }}
+            </nav>
+            <p class="b2b-order-table__pagination-note">
+              Quantities are sent per page. Add this page to the cart before moving to the next one.
+            </p>
+          {%- endif -%}
+        {%- endpaginate -%}
+
+        <footer class="b2b-order-table__footer" data-b2b-footer>
+          <p class="b2b-order-table__summary">
+            <span data-b2b-total-units>0</span> units ·
+            <span data-b2b-total-price>{{ 0 | money }}</span>
+          </p>
+          <p class="b2b-order-table__estimate">
+            Estimate. Taxes and shipping are calculated at checkout.
+          </p>
+          <button type="submit" class="button b2b-order-table__submit" data-b2b-submit>
+            Add to cart
+          </button>
+          <p class="b2b-order-table__status" role="status" aria-live="polite" data-b2b-status></p>
+        </footer>
+      </form>
+    {%- endif -%}
+  {%- endunless -%}
+</div>
+
+{% schema %}
+{
+  "name": "B2B order table",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Wholesale order form"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 5,
+      "max": 50,
+      "step": 5,
+      "label": "Products per page",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Columns"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sku",
+      "label": "Show SKU",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stock",
+      "label": "Show stock",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_volume_breaks",
+      "label": "Show volume prices",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Tools"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sku_search",
+      "label": "Show SKU filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "allow_price_hide",
+      "label": "Let the buyer hide prices",
+      "info": "For buyers placing orders in front of a retail customer.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "B2B order table"
+    }
+  ]
+}
+{% endschema %}

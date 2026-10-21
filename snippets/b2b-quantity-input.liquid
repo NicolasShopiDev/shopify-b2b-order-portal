@@ -1,0 +1,76 @@
+{%- comment -%}
+  Renders one quantity input for a variant, with the catalog's quantity rule
+  applied to the input itself.
+
+  `variant.quantity_rule` is set on the B2B catalog: a minimum, an increment
+  (cases of 6, pallets of 48) and an optional maximum. Putting those three numbers
+  on the input as `min`, `step` and `max` means the browser enforces the rule
+  before anything is sent, and the same numbers travel to the JS in data
+  attributes so the error message can name the real rule instead of saying
+  "invalid quantity".
+
+  Shopify enforces the rule again at checkout, so this is a usability layer, never
+  the only check.
+
+  Accepts:
+  - variant: a variant object (required)
+  - index:   position in the form, used for the `items[N][...]` field names (required)
+  - label:   accessible label for the input (required)
+{%- endcomment -%}
+
+{%- liquid
+  assign rule = variant.quantity_rule
+  assign min = rule.min | default: 1
+  assign increment = rule.increment | default: 1
+  assign max = rule.max
+-%}
+
+<div class="b2b-qty">
+  <input type="hidden" name="items[{{ index }}][id]" value="{{ variant.id }}">
+
+  <input
+    class="b2b-qty__input"
+    type="number"
+    inputmode="numeric"
+    name="items[{{ index }}][quantity]"
+    id="b2b-qty-{{ variant.id }}"
+    value="0"
+    min="0"
+    step="{{ increment }}"
+    {% if max != blank %}max="{{ max }}"{% endif %}
+    aria-label="{{ label | escape }}"
+    aria-describedby="b2b-rule-{{ variant.id }}"
+    data-b2b-qty
+    data-b2b-variant-id="{{ variant.id }}"
+    data-b2b-rule-min="{{ min }}"
+    data-b2b-rule-increment="{{ increment }}"
+    {% if max != blank %}data-b2b-rule-max="{{ max }}"{% endif %}
+    {% unless variant.available %}disabled{% endunless %}
+  >
+
+  <p class="b2b-qty__rule" id="b2b-rule-{{ variant.id }}">
+    {%- liquid
+      unless variant.available
+        echo 'Out of stock'
+      else
+        assign parts = ''
+        if min > 1
+          assign parts = parts | append: 'min ' | append: min
+        endif
+        if increment > 1
+          if parts != ''
+            assign parts = parts | append: ' · '
+          endif
+          assign parts = parts | append: 'in ' | append: increment | append: 's'
+        endif
+        if max != blank
+          if parts != ''
+            assign parts = parts | append: ' · '
+          endif
+          assign parts = parts | append: 'max ' | append: max
+        endif
+        echo parts
+      endunless
+    -%}
+  </p>
+</div>

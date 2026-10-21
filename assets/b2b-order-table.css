@@ -1,0 +1,284 @@
+/**
+ * b2b-order-table.css
+ *
+ * Deliberately plain. The point of the repo is the mechanism, not a design, so
+ * this inherits Dawn's type and colour variables instead of introducing a look
+ * that would have to be undone on a real theme.
+ *
+ * The one piece that is not cosmetic is the mobile table: a wholesale buyer uses
+ * this on a phone in a warehouse, so below 750px the rows stop being a table and
+ * become stacked cards with the column name in front of each value.
+ */
+
+.b2b-portal {
+  /* Dawn defines --color-foreground as comma-separated channels ("18, 18, 18"),
+     so the fallback has to be comma-separated too. With a space-separated
+     fallback the whole rgba() is invalid on any theme that does not define the
+     variable, and every border silently computes to 0. */
+  --b2b-border: rgba(var(--color-foreground, 18, 18, 18), 0.12);
+  --b2b-error: #b3261e;
+}
+
+/* Dawn sets box-sizing globally, but this component should not fall over on a
+   theme that does not. Without it the mobile cards are width:100% plus padding
+   plus border, and the page scrolls sideways on a phone. */
+.b2b-portal *,
+.b2b-portal *::before,
+.b2b-portal *::after {
+  box-sizing: border-box;
+}
+
+/* Gate ---------------------------------------------------------------- */
+
+.b2b-gate {
+  border: 1px solid var(--b2b-border);
+  border-radius: var(--inputs-radius, 0);
+  padding: 2.4rem;
+  max-width: 48rem;
+}
+
+.b2b-gate__heading {
+  margin: 0 0 0.8rem;
+}
+
+.b2b-gate__body {
+  margin: 0 0 1.6rem;
+}
+
+/* Header -------------------------------------------------------------- */
+
+.b2b-portal__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1.6rem;
+  margin-bottom: 2.4rem;
+}
+
+.b2b-portal__heading {
+  margin: 0;
+  flex: 1 1 100%;
+}
+
+.b2b-portal__company {
+  margin: 0;
+  font-weight: 600;
+}
+
+.b2b-portal__location,
+.b2b-portal__location-label {
+  margin: 0;
+  opacity: 0.75;
+  font-size: 0.9em;
+}
+
+.b2b-portal__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-left: auto;
+}
+
+.b2b-portal__search input,
+.b2b-portal__location-form select {
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--b2b-border);
+  border-radius: var(--inputs-radius, 0);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.b2b-portal__hide-prices {
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--b2b-border);
+  border-radius: var(--inputs-radius, 0);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Table --------------------------------------------------------------- */
+
+.b2b-group {
+  margin-bottom: 3.2rem;
+}
+
+.b2b-group__title {
+  margin: 0 0 0.8rem;
+  font-size: 1.1em;
+}
+
+.b2b-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.b2b-table th,
+.b2b-table td {
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--b2b-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.b2b-table th {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.b2b-row__sku {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.b2b-row--invalid {
+  background: rgba(179, 38, 30, 0.06);
+}
+
+.b2b-row--invalid .b2b-qty__rule {
+  color: var(--b2b-error);
+  font-weight: 600;
+}
+
+/* Price and quantity -------------------------------------------------- */
+
+.b2b-price__unit {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.b2b-price__breaks {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.b2b-qty__input {
+  width: 8rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--b2b-border);
+  border-radius: var(--inputs-radius, 0);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.b2b-qty__input[aria-invalid='true'] {
+  border-color: var(--b2b-error);
+}
+
+.b2b-qty__rule {
+  margin: 0.4rem 0 0;
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.b2b-row__total span {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Hiding prices ------------------------------------------------------- */
+
+.b2b-order-table--prices-hidden .b2b-table__price-col,
+.b2b-order-table--prices-hidden .b2b-order-table__summary {
+  visibility: hidden;
+}
+
+/* Footer -------------------------------------------------------------- */
+
+.b2b-order-table__footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.6rem;
+  padding: 1.6rem 0;
+  border-top: 1px solid var(--b2b-border);
+  background: rgb(var(--color-background, 255, 255, 255));
+}
+
+.b2b-order-table__summary {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.b2b-order-table__estimate,
+.b2b-order-table__pagination-note {
+  margin: 0;
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.b2b-order-table__submit {
+  margin-left: auto;
+}
+
+.b2b-order-table__status {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.b2b-order-table__status--error {
+  color: var(--b2b-error);
+  font-weight: 600;
+}
+
+/* Phone --------------------------------------------------------------- */
+
+@media screen and (max-width: 749px) {
+  .b2b-table thead {
+    display: none;
+  }
+
+  .b2b-table,
+  .b2b-table tbody,
+  .b2b-table tr,
+  .b2b-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .b2b-table tr {
+    border: 1px solid var(--b2b-border);
+    border-radius: var(--inputs-radius, 0);
+    margin-bottom: 1.2rem;
+    padding: 0.8rem;
+  }
+
+  .b2b-table td {
+    border: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 1.6rem;
+    padding: 0.4rem 0;
+  }
+
+  .b2b-table td::before {
+    content: attr(data-label);
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+  }
+
+  .b2b-portal__tools {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .b2b-order-table__submit {
+    margin-left: 0;
+    width: 100%;
+  }
+}

@@ -1,0 +1,43 @@
+{%- comment -%}
+  Renders the wholesale unit price for a variant, plus its volume breaks.
+
+  Nothing here calculates a discount. For a B2B customer the catalog price arrives
+  already resolved in `variant.price`, so the theme's job is to display it, not to
+  work it out. That is the single most common misunderstanding about B2B on Shopify:
+  people reach for a discount app before checking what the catalog already gives them.
+
+  Volume breaks (`quantity_price_breaks`) are set on the catalog, not on the plan, so
+  they work on Basic, Grow and Advanced. They are the cheapest way to cover a price
+  difference that is really a *quantity* difference.
+
+  Accepts:
+  - variant: a variant object (required)
+  - show_breaks: boolean, render the volume break list (default: true)
+{%- endcomment -%}
+
+{%- liquid
+  if show_breaks == blank
+    assign show_breaks = true
+  endif
+  assign breaks = variant.quantity_price_breaks | sort: 'minimum_quantity'
+-%}
+
+<div class="b2b-price">
+  <span class="b2b-price__unit" data-b2b-unit-price="{{ variant.price }}">
+    {{ variant.price | money }}
+  </span>
+
+  {%- if show_breaks and variant.quantity_price_breaks_configured? -%}
+    <ul class="b2b-price__breaks" aria-label="Volume prices">
+      {%- for price_break in breaks -%}
+        <li
+          class="b2b-price__break"
+          data-b2b-break-min="{{ price_break.minimum_quantity }}"
+          data-b2b-break-price="{{ price_break.price }}"
+        >
+          {{ price_break.minimum_quantity }}+ · {{ price_break.price | money }}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>

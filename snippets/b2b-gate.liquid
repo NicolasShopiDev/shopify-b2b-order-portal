@@ -1,0 +1,37 @@
+{%- comment -%}
+  Renders the locked state of the wholesale portal.
+
+  The portal is gated in the section with a single condition on `customer.b2b?`.
+  This snippet only explains *why* a visitor cannot see it, which is the part that
+  usually gets skipped: a retail customer who follows a wholesale link should not
+  land on an empty page, and a buyer whose company has several delivery addresses
+  needs to know which one the prices belong to.
+
+  Accepts:
+  - signed_out_heading / signed_out_body: copy for a visitor with no account
+  - no_access_heading / no_access_body:   copy for a signed-in retail customer
+
+  Usage:
+  {%- raw -%}{% render 'b2b-gate' %}{%- endraw -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign default_signed_out_body = 'Sign in with your company account to see wholesale prices and the order form.'
+  assign default_no_access_body = 'You are signed in, but this account is not linked to a company. Contact us and we will set it up.'
+  assign signed_out_heading = signed_out_heading | default: 'Wholesale access'
+  assign signed_out_body = signed_out_body | default: default_signed_out_body
+  assign no_access_heading = no_access_heading | default: 'This account is not a wholesale account'
+  assign no_access_body = no_access_body | default: default_no_access_body
+-%}
+
+<div class="b2b-gate">
+  {%- if customer == blank -%}
+    <h2 class="b2b-gate__heading">{{ signed_out_heading }}</h2>
+    <p class="b2b-gate__body">{{ signed_out_body }}</p>
+    <a class="b2b-gate__action button" href="{{ routes.account_login_url }}">Sign in</a>
+  {%- else -%}
+    <h2 class="b2b-gate__heading">{{ no_access_heading }}</h2>
+    <p class="b2b-gate__body">{{ no_access_body }}</p>
+    <a class="b2b-gate__action button" href="{{ routes.root_url }}">Back to the shop</a>
+  {%- endif -%}
+</div>
