@@ -17,7 +17,7 @@ This repo is the mechanism, extracted and rebuilt so you can read it in five min
 | 3 | **The catalog's quantity rule drives the input.** `quantity_rule.min`, `.increment` and `.max` become the input's `min`, `step` and `max`, so cases of 6 are enforced in the browser and named in the error. | [`snippets/b2b-quantity-input.liquid`](snippets/b2b-quantity-input.liquid) |
 | 4 | **The whole order is one cart call.** The form posts `items[N][id]` / `items[N][quantity]`, so it works as plain HTML; the JS upgrades it to a single `fetch` to `/cart/add.js` with the full `items` array. Forty rows, one round trip. | [`assets/b2b-order-table.js`](assets/b2b-order-table.js) |
 
-Plus the things a buyer actually asks for once they use it: live line totals that follow the volume breaks, a SKU filter, a delivery-location switcher (prices follow the location, so it goes through Shopify's own `localization` form), and a **hide prices** toggle for taking an order with a retail customer standing next to you.
+Plus the things a buyer actually asks for once they use it: live line totals that follow the volume breaks, a SKU filter, a delivery-location switcher (prices follow the location, so it goes through Shopify's own `localization` form), and a **hide prices** toggle for taking an order with a retail customer standing next to you — applied from an inline script before the table is parsed, so a buyer who left it on does not get the prices flashed on screen on every page load.
 
 ## What needs Plus, and what does not
 
@@ -56,6 +56,7 @@ Copy those six files into your theme, then add **B2B order table** to a page in 
 - **The no-JS fallback submits every row, including the empty ones.** A plain HTML form cannot filter itself, so the JS path is the supported one and the fallback is there to degrade, not to be the happy path. If you plan to rely on it, test what your store does with zero-quantity lines before you promise it to anyone. Removing the fallback entirely would be worse: it is what tells you the form is a form.
 - **Quantities are per page.** With pagination on, moving to page 2 loses what you typed on page 1. Holding it would mean `sessionStorage` or a draft order, and both are a bigger decision than a demo should make for you.
 - **Browser validation is a usability layer.** Shopify enforces quantity rules again at checkout. Never treat the `step` attribute as the check.
+- **One script is deliberately not deferred.** The few lines that read the hide-prices preference run inline, while the table is still being parsed. Deferring them would paint the prices first and hide them a moment later, which shows the customer standing next to the buyer exactly what the toggle exists to hide. Everything else is deferred.
 - **Stock is what the theme can see.** `variant.inventory_quantity` is the tracked number, not availability across locations.
 - **The styling is deliberately plain.** It inherits Dawn's variables so there is nothing to undo on a real theme.
 

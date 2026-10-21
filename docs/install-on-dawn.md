@@ -48,7 +48,8 @@ If you only ever test as yourself, you will see the gate. That is the gate worki
 | A product with volume prices | Breaks listed under the price; line total drops when you cross one |
 | Fill 3 rows, submit | One request in the network tab, three lines in the cart |
 | Company with 2+ locations | **Deliver to** selector; changing it reloads with that location's prices |
-| Hide prices | Price and total columns go blank, button says *Show prices*, survives a reload |
+| Hide prices | Price and total columns go blank, button says *Show prices* |
+| Reload with prices hidden | The prices never appear, not even for one frame, and the button already says *Show prices* on first paint |
 | JavaScript disabled | Submit still posts to `/cart/add` and lands on the cart |
 | Phone width | Rows become cards with the column name in front of each value |
 

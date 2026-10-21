@@ -24,6 +24,31 @@
 {{ 'b2b-order-table.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'b2b-order-table.js' | asset_url }}" defer="defer"></script>
 
+{%- comment -%}
+  This one script is not deferred, on purpose.
+
+  "Hide prices" exists so a buyer can take an order with a retail customer
+  standing next to them. If the class were applied after the deferred script
+  runs, the prices would paint first and flash on screen before disappearing,
+  which shows the customer exactly what the toggle is there to hide. Applying
+  it from an inline script that runs while the table is still being parsed
+  means those cells are never painted with a price in them.
+
+  It writes to the document element rather than the form because the form does
+  not exist yet at this point in the parse.
+{%- endcomment -%}
+<script>
+  (function () {
+    try {
+      if (window.localStorage.getItem('b2b-prices-hidden') === '1') {
+        document.documentElement.classList.add('b2b-prices-hidden');
+      }
+    } catch (error) {
+      // Private browsing or blocked storage: show prices, which is the safe default.
+    }
+  })();
+</script>
+
 {%- liquid
   assign source = section.settings.collection
   assign per_page = section.settings.products_per_page | default: 20
@@ -102,8 +127,14 @@
             Buyers place orders on the warehouse floor with a retail customer next to
             them. Hiding the price column is a real request, not a nice-to-have.
           {%- endcomment -%}
+          {%- comment -%}
+            Both labels are rendered and CSS picks the right one from the class on
+            the document element, so the button is already correct on first paint
+            and does not need JavaScript to relabel itself.
+          {%- endcomment -%}
           <button type="button" class="b2b-portal__hide-prices" data-b2b-toggle-prices aria-pressed="false">
-            Hide prices
+            <span class="b2b-portal__label--hide">Hide prices</span>
+            <span class="b2b-portal__label--show">Show prices</span>
           </button>
         {%- endif -%}
       </div>

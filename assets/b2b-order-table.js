@@ -302,10 +302,12 @@
     }
   };
 
+  // The class goes on the document element, not the form, because the inline
+  // script in the section sets it before the form has been parsed. The button's
+  // label is handled in CSS, so there is no text to swap here.
   OrderTable.prototype.togglePrices = function (toggle) {
-    var hidden = this.form.classList.toggle('b2b-order-table--prices-hidden');
+    var hidden = document.documentElement.classList.toggle('b2b-prices-hidden');
     toggle.setAttribute('aria-pressed', hidden ? 'true' : 'false');
-    toggle.textContent = hidden ? 'Show prices' : 'Hide prices';
 
     try {
       window.localStorage.setItem('b2b-prices-hidden', hidden ? '1' : '0');
@@ -314,20 +316,11 @@
     }
   };
 
+  // Nothing to restore: the inline script already applied the stored state before
+  // first paint. This only makes the button's accessible state match the screen.
   OrderTable.prototype.restorePriceVisibility = function (toggle) {
-    var stored = null;
-
-    try {
-      stored = window.localStorage.getItem('b2b-prices-hidden');
-    } catch (error) {
-      stored = null;
-    }
-
-    if (stored === '1') {
-      this.form.classList.add('b2b-order-table--prices-hidden');
-      toggle.setAttribute('aria-pressed', 'true');
-      toggle.textContent = 'Show prices';
-    }
+    var hidden = document.documentElement.classList.contains('b2b-prices-hidden');
+    toggle.setAttribute('aria-pressed', hidden ? 'true' : 'false');
   };
 
   function init() {

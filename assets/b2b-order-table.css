@@ -189,9 +189,26 @@
 
 /* Hiding prices ------------------------------------------------------- */
 
-.b2b-order-table--prices-hidden .b2b-table__price-col,
-.b2b-order-table--prices-hidden .b2b-order-table__summary {
+/* The class lives on <html>, set by the inline script in the section before the
+   table is parsed. That is what keeps the prices from painting once and then
+   vanishing, which would defeat the whole point of the toggle. */
+.b2b-prices-hidden .b2b-table__price-col,
+.b2b-prices-hidden .b2b-order-table__summary {
   visibility: hidden;
+}
+
+/* The button carries both labels so it reads correctly on first paint, with no
+   JavaScript needed to relabel it. */
+.b2b-portal__label--show {
+  display: none;
+}
+
+.b2b-prices-hidden .b2b-portal__label--hide {
+  display: none;
+}
+
+.b2b-prices-hidden .b2b-portal__label--show {
+  display: inline;
 }
 
 /* Footer -------------------------------------------------------------- */
